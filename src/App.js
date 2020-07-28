@@ -1,25 +1,74 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from 'react';
+import { Container, List, ListItem, ListItemText } from '@material-ui/core';
+import { ExpandLess, ExpandMore } from '@material-ui/icons';
+
+import api from './services/api';
+
+import Comments from './components/Comments';
 
 function App() {
+  const [posts, setPosts] = useState([]);
+
+  async function loadPosts() {
+    const response = await api.get('posts');
+
+    const post = response.data.map(post => {
+      return {
+        ...post,
+        open: false
+      };
+    })
+
+    setPosts(post);
+  }
+
+  async function handleOpenPost(_post) {
+    
+    let teste = _post.comment;
+
+    if (!teste) {
+      const response = await api.get(`/posts/${_post.id}/comments`);
+      console.log(response);
+      teste = response.data;
+    }
+
+    setPosts(posts.map(post => {
+      return {
+        ...post,
+        open: post.id === _post.id ? !_post.open : _post.open,
+        comment: teste
+      }
+    }));
+
+  }
+
+  function handleClosePost(_post) {
+    setPosts(posts.map(post => {
+      return {
+        ...post,
+        open: false
+      }
+    }));
+  }
+
+  useEffect(() => {
+    loadPosts();
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <h1>Posts</h1>
+
+      {posts.map(post => (
+        <List key={post.id}>
+          <ListItem style={{ background: post.open ? 'rgba(0, 0, 0, 0.1)' : 'white' }} button onClick={() => !post.open ? handleOpenPost(post) : handleClosePost(post)}>
+            <ListItemText primary={post.title} secondary={post.body} />
+            {post.open ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Comments open={post.open} comment={post.comment} />
+        </List>
+      ))}
+    </Container>
   );
 }
 
