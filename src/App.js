@@ -24,19 +24,19 @@ function App() {
 
   async function handleOpenPost(_post) {
     
-    let teste = _post.comment;
+    let existComment = _post.comment;
 
-    if (!teste) {
+    if (!existComment) {
       const response = await api.get(`/posts/${_post.id}/comments`);
       console.log(response);
-      teste = response.data;
+      existComment = response.data;
     }
 
     setPosts(posts.map(post => {
       return {
         ...post,
         open: post.id === _post.id ? !_post.open : _post.open,
-        comment: teste
+        comment: existComment
       }
     }));
 
