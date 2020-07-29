@@ -23,7 +23,7 @@ function App() {
   }
 
   async function handleOpenPost(_post) {
-    
+    debugger
     let existComment = _post.comment;
 
     if (!existComment) {
@@ -36,7 +36,7 @@ function App() {
       return {
         ...post,
         open: post.id === _post.id ? !_post.open : _post.open,
-        comment: existComment
+        comment: post.id === _post.id ? existComment : null
       }
     }));
 
